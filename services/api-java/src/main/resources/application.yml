@@ -1,0 +1,38 @@
+server:
+  port: 3847
+
+spring:
+  application:
+    name: urban-pulse-api
+  datasource:
+    url: jdbc:h2:mem:urbanpulse;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+urbanpulse:
+  city-id: demo-harbor
+  city-label: "Harbor District (procedural demo)"
+  source-kind-default: simulated
+
+logging:
+  level:
+    com.urbanpulse: INFO

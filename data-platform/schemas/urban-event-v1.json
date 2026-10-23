@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urbanpulse.local/schemas/urban-event-v1.json",
+  "title": "UrbanPulseEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventTimestamp",
+    "sourceId",
+    "spatialEntityId",
+    "schemaVersion",
+    "measurementName",
+    "measurementValue",
+    "measurementUnit",
+    "qualityStatus",
+    "sourceKind"
+  ],
+  "properties": {
+    "eventId": { "type": "string", "minLength": 1 },
+    "eventType": { "type": "string" },
+    "eventTimestamp": { "type": "string", "format": "date-time" },
+    "sourceId": { "type": "string" },
+    "spatialEntityId": { "type": "string" },
+    "schemaVersion": { "const": "1.0.0" },
+    "measurementName": { "type": "string" },
+    "measurementValue": { "type": "number" },
+    "measurementUnit": { "type": "string" },
+    "qualityStatus": { "type": "string" },
+    "sourceKind": {
+      "type": "string",
+      "enum": ["SIMULATED", "OBSERVED", "PREDICTED"]
+    }
+  }
+}
