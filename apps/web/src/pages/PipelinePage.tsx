@@ -1,16 +1,24 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchStatus } from '../api'
 
+async function fetchPipeline() {
+  const r = await fetch('/api/v1/pipeline/status')
+  if (!r.ok) throw new Error('pipeline status failed')
+  return r.json()
+}
+
 const stages = [
   { name: 'Ingestion generator', detail: 'Python synthetic traffic events (schema v1)', status: 'ready' },
   { name: 'Java API validate + store', detail: 'Spring Boot + H2 aggregates (5-min windows)', status: 'ready' },
   { name: 'Analytics serving', detail: 'REST traffic / environment / scenarios', status: 'ready' },
   { name: 'ML inference', detail: 'FastAPI ridge forecast + IsolationForest', status: 'ready' },
-  { name: 'Kafka / Spark', detail: 'Compose stubs present — wire-up in next hardening pass', status: 'planned' },
+  { name: 'Kafka streaming', detail: 'Topic urban.traffic.events → Spring consumer → aggregates', status: 'ready' },
+  { name: 'Spark batch/stream', detail: 'Planned in StreamForge project', status: 'planned' },
 ]
 
 export function PipelinePage() {
   const status = useQuery({ queryKey: ['status'], queryFn: fetchStatus, refetchInterval: 4000 })
+  const pipeline = useQuery({ queryKey: ['pipeline'], queryFn: fetchPipeline, refetchInterval: 3000 })
 
   return (
     <div className="grid gap-5">
@@ -21,10 +29,11 @@ export function PipelinePage() {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Card label="Events ingested" value={String(status.data?.eventCount ?? '…')} />
         <Card label="Aggregate windows" value={String(status.data?.aggregateCount ?? '…')} />
-        <Card label="Spatial entities" value={String(status.data?.spatialEntityCount ?? '…')} />
+        <Card label="Kafka consumed" value={String(pipeline.data?.kafkaConsumed ?? '…')} />
+        <Card label="Pipeline mode" value={String(pipeline.data?.mode ?? '…')} />
       </div>
 
       <ol className="grid gap-3">

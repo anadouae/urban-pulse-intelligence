@@ -25,6 +25,12 @@ test-api:
 ingest:
 	python3 services/ingestion/generate_traffic.py --api $(API_URL) --rounds 4
 
+ingest-kafka:
+	python3 services/ingestion/generate_traffic_kafka.py --rounds 4
+
+kafka-topics:
+	bash scripts/create-topics.sh
+
 web:
 	cd $(WEB_DIR) && npm run dev -- --host 127.0.0.1 --port 5178
 

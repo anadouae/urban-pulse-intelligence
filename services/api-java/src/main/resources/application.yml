@@ -21,6 +21,18 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:127.0.0.1:9092}
+    consumer:
+      group-id: urban-pulse-api
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    listener:
+      missing-topics-fatal: false
 
 management:
   endpoints:
@@ -33,7 +45,11 @@ urbanpulse:
   city-label: "Harbor District (procedural demo)"
   source-kind-default: simulated
   ml-base-url: http://127.0.0.1:3851
+  kafka:
+    enabled: ${URBAN_PULSE_KAFKA_ENABLED:true}
+    traffic-topic: urban.traffic.events
 
 logging:
   level:
     com.urbanpulse: INFO
+    org.springframework.kafka: INFO

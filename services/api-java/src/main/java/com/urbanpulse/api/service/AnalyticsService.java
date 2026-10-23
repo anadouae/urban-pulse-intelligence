@@ -113,13 +113,13 @@ public class AnalyticsService {
         return new SystemStatusView(
                 cityId,
                 cityLabel,
-                "M2",
+                "M3",
                 eventRepository.count(),
                 aggregateRepository.count(),
                 spatialEntityRepository.count(),
                 Instant.now(),
                 "SIMULATED_DEMO",
-                "M2: synthetic streaming + scenarios + ML forecast/anomalies. Kafka/PostGIS optional next.");
+                "M3: Kafka topic urban.traffic.events → Spring consumer → analytics + ML + 3D console.");
     }
 
     private static String congestionLevel(double avgSpeedKmh) {

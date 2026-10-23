@@ -1,0 +1,14 @@
+urbanpulse:
+  city-id: demo-harbor
+  city-label: "Harbor District (procedural demo)"
+  source-kind-default: simulated
+  ml-base-url: http://127.0.0.1:3851
+  kafka:
+    enabled: false
+    traffic-topic: urban.traffic.events
+
+spring:
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+    listener:
+      auto-startup: false
