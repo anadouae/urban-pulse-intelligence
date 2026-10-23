@@ -55,7 +55,7 @@ class EventIngestionIntegrationTest {
 
         mockMvc.perform(get("/api/v1/status"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.milestone").value("M1"))
+                .andExpect(jsonPath("$.milestone").value("M2"))
                 .andExpect(jsonPath("$.dataMode").value("SIMULATED_DEMO"));
     }
 }

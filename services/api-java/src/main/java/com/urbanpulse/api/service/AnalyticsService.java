@@ -5,6 +5,7 @@ import com.urbanpulse.api.domain.TrafficAggregate;
 import com.urbanpulse.api.repo.SpatialEntityRepository;
 import com.urbanpulse.api.repo.TrafficAggregateRepository;
 import com.urbanpulse.api.repo.UrbanEventRepository;
+import com.urbanpulse.api.web.dto.HistoryPoint;
 import com.urbanpulse.api.web.dto.SystemStatusView;
 import com.urbanpulse.api.web.dto.TrafficSegmentView;
 import org.springframework.beans.factory.annotation.Value;
@@ -95,17 +96,30 @@ public class AnalyticsService {
     }
 
     @Transactional(readOnly = true)
+    public List<HistoryPoint> history(String spatialEntityId) {
+        return aggregateRepository.findTop200ByOrderByWindowStartDesc().stream()
+                .filter(a -> a.getSpatialEntityId().equals(spatialEntityId))
+                .sorted(Comparator.comparing(TrafficAggregate::getWindowStart))
+                .map(a -> new HistoryPoint(
+                        a.getWindowStart(),
+                        round(a.getAvgSpeedKmh()),
+                        round(a.getVehicleCount()),
+                        a.getSourceKind()))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public SystemStatusView status() {
         return new SystemStatusView(
                 cityId,
                 cityLabel,
-                "M1",
+                "M2",
                 eventRepository.count(),
                 aggregateRepository.count(),
                 spatialEntityRepository.count(),
                 Instant.now(),
                 "SIMULATED_DEMO",
-                "M1 uses synthetic events + in-process aggregation (H2). Kafka/PostGIS planned for M2.");
+                "M2: synthetic streaming + scenarios + ML forecast/anomalies. Kafka/PostGIS optional next.");
     }
 
     private static String congestionLevel(double avgSpeedKmh) {

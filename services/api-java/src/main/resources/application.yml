@@ -32,6 +32,7 @@ urbanpulse:
   city-id: demo-harbor
   city-label: "Harbor District (procedural demo)"
   source-kind-default: simulated
+  ml-base-url: http://127.0.0.1:3851
 
 logging:
   level:

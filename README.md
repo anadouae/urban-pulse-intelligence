@@ -1,88 +1,74 @@
 # Urban Pulse Intelligence
 
-Research-oriented **smart city intelligence** platform (portfolio / PFE track).
+Portfolio-grade **smart city intelligence** platform: simulated urban streaming → Java API → ML forecasts/anomalies → interactive 3D console.
 
-**Current milestone: M1 — working vertical slice**
+**Current milestone: M2 (expanded vertical product)**
 
-Synthetic traffic events → Java 21 Spring Boot API (validate + aggregate) → React + Three.js digital twin console.
+> Harbor District is a **procedural demo city**. Traffic and air-quality values are **SIMULATED** unless otherwise labeled. Forecasts/anomalies are **PREDICTED**.
 
-> All M1 measurements are **SIMULATED** on a **procedural** Harbor District. They are not municipal telemetry.
+## What works now
 
-## Architecture (M1)
-
-```text
-Python generator  --HTTP JSON schema v1-->  Spring Boot API (H2)
-                                              | aggregates 5-min windows
-React + R3F console  <--REST analytics-----/
-```
-
-Kafka, PostGIS, Spark, forecasting, computer vision, and the C++ engine are planned for later milestones (see `docs/architecture/`).
+- Synthetic traffic ingestion (schema v1) + 5-minute aggregates
+- Seeded historical windows for immediate forecasting demos
+- Java 21 / Spring Boot API (traffic, environment, scenarios, ML proxy)
+- Python FastAPI ML service (Ridge forecast + IsolationForest)
+- React console: Overview · 3D Twin · Traffic · Environment · Forecast · Scenarios · Pipeline
+- Provenance labels everywhere · CI for API + web
 
 ## Stack
 
 | Layer | Tech |
 |-------|------|
-| Web | React, TypeScript, Vite, Tailwind, React Three Fiber, TanStack Query |
-| API | Java 21, Spring Boot, JPA, H2, Validation, Actuator |
-| Ingestion | Python 3 (stdlib only) |
-| Optional later | PostgreSQL/PostGIS, Redpanda/Kafka (`docker-compose.yml`) |
+| Web | React, TypeScript, Vite, Tailwind, R3F, Recharts, React Router |
+| API | Java 21, Spring Boot 3.4, JPA, H2, Validation, Actuator |
+| ML | FastAPI, scikit-learn, NumPy, pandas |
+| Ingestion | Python 3 |
+| Later | Kafka/Redpanda, PostGIS (`docker-compose.yml`) |
 
 ## Quick start
 
-Requirements: **Java 21**, **Node 20+**, **Python 3.10+**. Docker is optional for M1.
+Needs Java 21, Node 20+, Python 3.10+.
 
 ```bash
 # Terminal 1 — API
 cd services/api-java && ./mvnw spring-boot:run
-# listens on http://127.0.0.1:3847
+# :3847
 
-# Terminal 2 — seed simulated traffic
+# Terminal 2 — ML
+cd services/ml-inference
+pip install -r requirements.txt
+python3 -m uvicorn app:app --host 127.0.0.1 --port 3851
+
+# Terminal 3 — optional extra live events
 python3 services/ingestion/generate_traffic.py --rounds 4
 
-# Terminal 3 — web console
+# Terminal 4 — web
 cd apps/web && npm install && npm run dev
 # http://127.0.0.1:5178
 ```
 
-Or use the Makefile: `make api` · `make ingest` · `make web`.
+Or: `make api` · `make ml` · `make ingest` · `make web`.
 
 ## Tests
 
 ```bash
 cd services/api-java && ./mvnw test
+cd apps/web && npm run build
 ```
 
-## Key API routes
+## Clone on your Windows Desktop
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| GET | `/api/v1/status` | Milestone, counts, data-mode disclaimer |
-| GET | `/api/v1/city/entities` | Procedural road segments |
-| GET | `/api/v1/analytics/traffic/latest` | Latest window per segment |
-| POST | `/api/v1/events` | Ingest schema v1 urban events |
-
-## Provenance
-
-Every event carries `sourceKind`: `SIMULATED` | `OBSERVED` | `PREDICTED`.  
-The UI and status endpoint surface this explicitly.
-
-## Repository layout
-
-```text
-apps/web/
-services/api-java/
-services/ingestion/
-data-platform/schemas/
-docs/architecture/
-infrastructure/docker/
-docker-compose.yml
-Makefile
+```powershell
+cd C:\Users\daurinia\Desktop
+git clone https://github.com/anadouae/urban-pulse-intelligence.git
 ```
+
+(The Cloud agent cannot write to your Windows Desktop; GitHub is the source of truth.)
 
 ## Author
 
-Douae El Assal — ENSA Tétouan · [GitHub](https://github.com/anadouae) · [LinkedIn](https://www.linkedin.com/in/douae-el-assal)
+Douae El Assal — ENSA Tétouan · [@anadouae](https://github.com/anadouae) · [LinkedIn](https://www.linkedin.com/in/douae-el-assal)
 
 ## License
 
-MIT (code). Datasets/models added later must keep their own licenses documented in `docs/`.
+MIT (code). Document dataset/model licenses separately when added.
