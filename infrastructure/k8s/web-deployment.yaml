@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urban-pulse-web
+  namespace: urban-pulse
+  labels:
+    app: urban-pulse-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: urban-pulse-web
+  template:
+    metadata:
+      labels:
+        app: urban-pulse-web
+    spec:
+      containers:
+        - name: web
+          image: urban-pulse-web:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: urban-pulse
+spec:
+  type: ClusterIP
+  selector:
+    app: urban-pulse-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

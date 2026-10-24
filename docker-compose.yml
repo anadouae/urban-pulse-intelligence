@@ -1,8 +1,11 @@
-# Optional local stack for Milestone 2+.
-# Milestone 1 runs without Docker (H2 + in-process aggregation).
+# Local stack for Urban Pulse.
+# Infra (postgres/redpanda) is optional; app services build from Dockerfiles.
+# Honesty: Java API still defaults to H2 in-memory — PostGIS is available for a future profile.
+# Kafka inside containers: URBAN_PULSE_KAFKA_ENABLED defaults false so API starts without broker deps.
 services:
   postgres:
     image: postgis/postgis:16-3.4
+    profiles: ["infra"]
     environment:
       POSTGRES_DB: urbanpulse
       POSTGRES_USER: urbanpulse
@@ -14,6 +17,7 @@ services:
 
   redpanda:
     image: redpandadata/redpanda:v24.2.4
+    profiles: ["infra"]
     command:
       - redpanda
       - start
@@ -33,6 +37,31 @@ services:
       - PLAINTEXT://127.0.0.1:9092
     ports:
       - "9092:9092"
+
+  ml:
+    build:
+      context: ./services/ml-inference
+    ports:
+      - "3851:3851"
+
+  api:
+    build:
+      context: ./services/api-java
+    ports:
+      - "3847:3847"
+    environment:
+      URBAN_PULSE_KAFKA_ENABLED: "false"
+      URBANPULSE_ML_BASE_URL: http://ml:3851
+    depends_on:
+      - ml
+
+  web:
+    build:
+      context: ./apps/web
+    ports:
+      - "5178:80"
+    depends_on:
+      - api
 
 volumes:
   up_pg:

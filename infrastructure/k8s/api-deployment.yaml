@@ -1,0 +1,65 @@
+# Portfolio-grade manifests. Apply only against a real cluster after building/pushing images.
+# This VM does not run Kubernetes — manifests are not deployed here.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urban-pulse-api
+  namespace: urban-pulse
+  labels:
+    app: urban-pulse-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: urban-pulse-api
+  template:
+    metadata:
+      labels:
+        app: urban-pulse-api
+    spec:
+      containers:
+        - name: api
+          image: urban-pulse-api:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3847
+              name: http
+          env:
+            - name: SERVER_PORT
+              value: "3847"
+            - name: URBAN_PULSE_KAFKA_ENABLED
+              value: "false"
+            - name: URBANPULSE_ML_BASE_URL
+              value: http://ml:3851
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: urban-pulse
+spec:
+  selector:
+    app: urban-pulse-api
+  ports:
+    - name: http
+      port: 3847
+      targetPort: 3847

@@ -1,0 +1,221 @@
+openapi: 3.0.3
+info:
+  title: Urban Pulse Intelligence API
+  version: 1.0.0
+  description: |
+    Java Spring Boot API for the Harbor District demo.
+    Traffic and environment values are SIMULATED unless labeled otherwise.
+    Forecasts/anomalies returned via ML proxy are PREDICTED.
+  contact:
+    name: Douae El Assal
+    url: https://github.com/anadouae
+servers:
+  - url: http://127.0.0.1:3847
+    description: Local / Cloud agent VM
+tags:
+  - name: status
+  - name: events
+  - name: analytics
+  - name: environment
+  - name: scenarios
+  - name: ml
+  - name: pipeline
+  - name: actuator
+
+paths:
+  /actuator/health:
+    get:
+      tags: [actuator]
+      summary: Health probe
+      responses:
+        "200":
+          description: UP/DOWN payload
+
+  /api/v1/status:
+    get:
+      tags: [status]
+      summary: System status and demo mode
+      responses:
+        "200":
+          description: Status view
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SystemStatusView"
+
+  /api/v1/city/entities:
+    get:
+      tags: [analytics]
+      summary: Spatial entities (road segments)
+      responses:
+        "200":
+          description: Entity list
+
+  /api/v1/analytics/traffic/latest:
+    get:
+      tags: [analytics]
+      summary: Latest traffic aggregates per segment
+      responses:
+        "200":
+          description: Traffic segment views
+
+  /api/v1/analytics/traffic/{segmentId}/history:
+    get:
+      tags: [analytics]
+      summary: Traffic history for one segment
+      parameters:
+        - name: segmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: seg-ave-mid
+      responses:
+        "200":
+          description: History points
+
+  /api/v1/events:
+    post:
+      tags: [events]
+      summary: Ingest one urban event (SIMULATED or observed)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UrbanEventRequest"
+            example:
+              eventId: demo-evt-001
+              eventType: traffic.measurement
+              eventTimestamp: "2026-10-24T10:00:00Z"
+              sourceId: curl-demo
+              spatialEntityId: seg-ave-mid
+              schemaVersion: "1.0.0"
+              measurementName: avg_speed_kmh
+              measurementValue: 42.5
+              measurementUnit: km/h
+              qualityStatus: ok
+              sourceKind: SIMULATED
+      responses:
+        "201":
+          description: Accepted
+
+  /api/v1/environment/latest:
+    get:
+      tags: [environment]
+      summary: Latest environment (AQI-style) readings
+      responses:
+        "200":
+          description: Environment payload
+
+  /api/v1/scenarios:
+    get:
+      tags: [scenarios]
+      summary: List what-if scenarios
+      responses:
+        "200":
+          description: Scenario list
+    post:
+      tags: [scenarios]
+      summary: Create scenario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScenarioRequest"
+      responses:
+        "201":
+          description: Created
+
+  /api/v1/ml/forecast/{segmentId}:
+    post:
+      tags: [ml]
+      summary: Proxy forecast to ML service (PREDICTED)
+      parameters:
+        - name: segmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: seg-ave-mid
+      responses:
+        "200":
+          description: Forecast response from ML
+
+  /api/v1/ml/anomalies/{segmentId}:
+    post:
+      tags: [ml]
+      summary: Proxy anomaly detection to ML service (PREDICTED)
+      parameters:
+        - name: segmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: seg-ave-mid
+      responses:
+        "200":
+          description: Anomaly response from ML
+
+  /api/v1/pipeline/status:
+    get:
+      tags: [pipeline]
+      summary: Kafka / ingestion pipeline counters
+      responses:
+        "200":
+          description: Pipeline status
+
+components:
+  schemas:
+    SystemStatusView:
+      type: object
+      properties:
+        cityId: { type: string }
+        cityLabel: { type: string }
+        milestone: { type: string }
+        eventCount: { type: integer }
+        aggregateCount: { type: integer }
+        spatialEntityCount: { type: integer }
+        serverTime: { type: string, format: date-time }
+        dataMode: { type: string, example: SIMULATED_DEMO }
+        notes: { type: string }
+
+    UrbanEventRequest:
+      type: object
+      required:
+        - eventId
+        - eventType
+        - eventTimestamp
+        - sourceId
+        - spatialEntityId
+        - schemaVersion
+        - measurementName
+        - measurementValue
+        - measurementUnit
+        - qualityStatus
+        - sourceKind
+      properties:
+        eventId: { type: string }
+        eventType: { type: string }
+        eventTimestamp: { type: string, format: date-time }
+        sourceId: { type: string }
+        spatialEntityId: { type: string }
+        schemaVersion: { type: string }
+        measurementName: { type: string }
+        measurementValue: { type: number }
+        measurementUnit: { type: string }
+        qualityStatus: { type: string }
+        sourceKind:
+          type: string
+          enum: [SIMULATED, OBSERVED, DERIVED, PREDICTED]
+
+    ScenarioRequest:
+      type: object
+      required: [name, assumptions, demandMultiplier, capacityMultiplier, incidentMinutes]
+      properties:
+        name: { type: string }
+        assumptions: { type: string }
+        demandMultiplier: { type: number, minimum: 0.2, maximum: 3.0 }
+        capacityMultiplier: { type: number, minimum: 0.2, maximum: 3.0 }
+        incidentMinutes: { type: number, minimum: 0, maximum: 240 }

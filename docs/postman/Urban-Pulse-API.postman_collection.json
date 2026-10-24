@@ -1,0 +1,142 @@
+{
+  "info": {
+    "name": "Urban Pulse API",
+    "description": "Smoke + main routes for Urban Pulse Java API (Harbor District SIMULATED demo).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:3847" },
+    { "key": "segmentId", "value": "seg-ave-mid" }
+  ],
+  "item": [
+    {
+      "name": "Smoke",
+      "item": [
+        {
+          "name": "Actuator health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/actuator/health"
+          }
+        },
+        {
+          "name": "System status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/status"
+          }
+        },
+        {
+          "name": "Pipeline status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/pipeline/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "City entities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/city/entities"
+          }
+        },
+        {
+          "name": "Latest traffic",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/analytics/traffic/latest"
+          }
+        },
+        {
+          "name": "Traffic history",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/analytics/traffic/{{segmentId}}/history"
+          }
+        },
+        {
+          "name": "Environment latest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/environment/latest"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Ingest SIMULATED event",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": \"postman-{{$guid}}\",\n  \"eventType\": \"traffic.measurement\",\n  \"eventTimestamp\": \"2026-10-24T10:00:00Z\",\n  \"sourceId\": \"postman\",\n  \"spatialEntityId\": \"{{segmentId}}\",\n  \"schemaVersion\": \"1.0.0\",\n  \"measurementName\": \"avg_speed_kmh\",\n  \"measurementValue\": 41.2,\n  \"measurementUnit\": \"km/h\",\n  \"qualityStatus\": \"ok\",\n  \"sourceKind\": \"SIMULATED\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/events"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Scenarios",
+      "item": [
+        {
+          "name": "List scenarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/scenarios"
+          }
+        },
+        {
+          "name": "Create scenario",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rush stress\",\n  \"assumptions\": \"1.5x demand, short incident\",\n  \"demandMultiplier\": 1.5,\n  \"capacityMultiplier\": 1.0,\n  \"incidentMinutes\": 15\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/scenarios"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ML proxy",
+      "item": [
+        {
+          "name": "Forecast segment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/ml/forecast/{{segmentId}}"
+          }
+        },
+        {
+          "name": "Anomalies segment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/ml/anomalies/{{segmentId}}"
+          }
+        }
+      ]
+    }
+  ]
+}

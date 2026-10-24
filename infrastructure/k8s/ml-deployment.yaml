@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urban-pulse-ml
+  namespace: urban-pulse
+  labels:
+    app: urban-pulse-ml
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: urban-pulse-ml
+  template:
+    metadata:
+      labels:
+        app: urban-pulse-ml
+    spec:
+      containers:
+        - name: ml
+          image: urban-pulse-ml:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3851
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml
+  namespace: urban-pulse
+spec:
+  selector:
+    app: urban-pulse-ml
+  ports:
+    - name: http
+      port: 3851
+      targetPort: 3851
