@@ -11,7 +11,8 @@ spring:
     password:
   h2:
     console:
-      enabled: true
+      # Demo only — disable with URBAN_PULSE_H2_CONSOLE=false or profile=postgres
+      enabled: ${URBAN_PULSE_H2_CONSOLE:true}
       path: /h2
   jpa:
     hibernate:
@@ -48,6 +49,16 @@ urbanpulse:
   kafka:
     enabled: ${URBAN_PULSE_KAFKA_ENABLED:true}
     traffic-topic: urban.traffic.events
+  security:
+    api-key: ${URBAN_PULSE_API_KEY:}
+    api-key-required: ${URBAN_PULSE_API_KEY_REQUIRED:false}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
 
 logging:
   level:

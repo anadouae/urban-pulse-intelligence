@@ -1,0 +1,22 @@
+# Activate with: --spring.profiles.active=postgres
+# Requires PostGIS/Postgres (see docker compose --profile infra).
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/urbanpulse}
+    username: ${SPRING_DATASOURCE_USERNAME:urbanpulse}
+    password: ${SPRING_DATASOURCE_PASSWORD:urbanpulse}
+    driver-class-name: org.postgresql.Driver
+  h2:
+    console:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+urbanpulse:
+  security:
+    # Prefer setting via env in any non-local use
+    api-key-required: ${URBAN_PULSE_API_KEY_REQUIRED:true}

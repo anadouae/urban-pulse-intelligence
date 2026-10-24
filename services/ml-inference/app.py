@@ -6,10 +6,11 @@ observed data is provided. Never present predictions as measurements.
 
 from __future__ import annotations
 
+import os
 from typing import Literal
 
 import numpy as np
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 from sklearn.ensemble import IsolationForest
 from sklearn.linear_model import Ridge
@@ -19,6 +20,16 @@ app = FastAPI(
     version="0.2.0",
     description="Baseline + Ridge forecast and IsolationForest anomalies for Harbor District demo.",
 )
+
+# Optional API key: set ML_API_KEY to require X-API-Key on mutating routes.
+_ML_API_KEY = os.getenv("ML_API_KEY", "").strip()
+
+
+def _require_api_key(x_api_key: str | None) -> None:
+    if not _ML_API_KEY:
+        return
+    if not x_api_key or x_api_key.strip() != _ML_API_KEY:
+        raise HTTPException(status_code=401, detail="Valid X-API-Key required")
 
 
 class SeriesPoint(BaseModel):
@@ -130,7 +141,8 @@ def health():
 
 
 @app.post("/v1/forecast", response_model=ForecastResponse)
-def forecast(req: ForecastRequest):
+def forecast(req: ForecastRequest, x_api_key: str | None = Header(default=None)):
+    _require_api_key(x_api_key)
     if len(req.history) < 3:
         raise HTTPException(400, "Need at least 3 history points")
 
@@ -173,7 +185,8 @@ def forecast(req: ForecastRequest):
 
 
 @app.post("/v1/anomalies", response_model=AnomalyResponse)
-def anomalies(req: AnomalyRequest):
+def anomalies(req: AnomalyRequest, x_api_key: str | None = Header(default=None)):
+    _require_api_key(x_api_key)
     if len(req.history) < 8:
         raise HTTPException(400, "Need at least 8 history points for anomaly detection")
 

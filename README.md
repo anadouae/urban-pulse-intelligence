@@ -5,7 +5,8 @@ Portfolio-grade **smart city intelligence** platform: simulated urban streaming 
 **Current milestone:** vertical product with optional **real Kafka** path (topic `urban.traffic.events`).
 
 > Harbor District is a **procedural demo city**. Traffic and air-quality values are **SIMULATED** unless otherwise labeled. Forecasts/anomalies are **PREDICTED**.  
-> Default persistence is **H2 in-memory** (not Postgres). PostGIS appears in compose under profile `infra` for a future JDBC switch — do not claim production Postgres yet.  
+> Default persistence is **H2 in-memory** (not Postgres). Use `--spring.profiles.active=postgres` + compose `infra` for PostGIS.  
+> Security: optional `URBAN_PULSE_API_KEY` / `X-API-Key` on mutating routes — see [`SECURITY.md`](SECURITY.md). Methodology: [`docs/PROJECT_METHODOLOGY.md`](docs/PROJECT_METHODOLOGY.md).  
 > Kubernetes manifests under `infrastructure/k8s/` are real YAML; they are **not** applied unless you have a cluster.
 
 ## What works now
@@ -70,9 +71,12 @@ Images were authored for Docker Desktop / CI. The Cloud agent VM used for demos 
 
 | Artifact | Path |
 |----------|------|
-| OpenAPI | [`docs/openapi/urban-pulse-api.v1.yaml`](docs/openapi/urban-pulse-api.v1.yaml) |
+| OpenAPI (file) | [`docs/openapi/urban-pulse-api.v1.yaml`](docs/openapi/urban-pulse-api.v1.yaml) |
+| Swagger UI (runtime) | http://127.0.0.1:3847/swagger-ui.html |
 | Postman | [`docs/postman/Urban-Pulse-API.postman_collection.json`](docs/postman/Urban-Pulse-API.postman_collection.json) |
 | Test guide | [`docs/urban-pulse-test-guide.md`](docs/urban-pulse-test-guide.md) |
+| Security | [`SECURITY.md`](SECURITY.md) |
+| Methodology | [`docs/PROJECT_METHODOLOGY.md`](docs/PROJECT_METHODOLOGY.md) |
 | ML Swagger | http://127.0.0.1:3851/docs when ML is running |
 
 ```bash
